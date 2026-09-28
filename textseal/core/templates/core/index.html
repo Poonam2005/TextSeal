@@ -1,0 +1,84 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="TextSeal text watermarking and provenance verification">
+  <title>TextSeal | Provenance, made visible</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'core/app.css' %}">
+</head>
+<body>
+  <div id="csrf-token" hidden>{% csrf_token %}</div>
+  <div class="page-glow glow-one"></div><div class="page-glow glow-two"></div>
+  <header class="topbar shell">
+    <a class="brand" href="#top" aria-label="TextSeal home"><span class="brand-mark">T</span><span>TextSeal</span></a>
+    <div class="environment"><i></i> Local provenance ledger</div>
+  </header>
+
+  <main id="top" class="shell">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">AI text provenance</p>
+        <h1>Know what your text<br><em>has been through.</em></h1>
+        <p class="lede">Embed an invisible, signed watermark. Register an integrity fingerprint. Verify whether text comes back exactly as it left.</p>
+      </div>
+      <aside class="hero-note">
+        <span class="note-icon">✦</span>
+        <p><strong>How it works</strong> Your content stays readable. TextSeal stores a SHA-256 fingerprint and embeds an invisible provenance token.</p>
+      </aside>
+    </section>
+
+    <section class="workspace" aria-label="TextSeal workspace">
+      <div class="tabs" role="tablist" aria-label="Choose workflow">
+        <button class="tab active" role="tab" id="watermark-tab" aria-selected="true" aria-controls="watermark-panel" data-tab="watermark-panel"><span>01</span> Watermark & register</button>
+        <button class="tab" role="tab" id="verify-tab" aria-selected="false" aria-controls="verify-panel" data-tab="verify-panel"><span>02</span> Verify provenance</button>
+        <button class="tab" role="tab" id="history-tab" aria-selected="false" aria-controls="history-panel" data-tab="history-panel"><span>03</span> Review ledger</button>
+      </div>
+
+      <section class="panel active" id="watermark-panel" role="tabpanel" aria-labelledby="watermark-tab">
+        <div class="panel-copy"><p class="eyebrow">Create record</p><h2>Seal this text</h2><p>We’ll normalize your text, invisibly add a signed TextSeal token, then register its integrity fingerprint.</p></div>
+        <form id="watermark-form" class="tool-form">
+          <div class="text-head"><label for="watermark-text">Text to protect</label><button type="button" class="quiet-button sample-button" data-target="watermark-text">Use a sample</button></div>
+          <textarea id="watermark-text" name="text" maxlength="100000" placeholder="Paste or write the text you want to protect…" required></textarea>
+          <div class="form-grid">
+            <label>AI model <input id="model-info" name="model_info" maxlength="160" placeholder="e.g. GPT-5, Claude, or manual"></label>
+            <label>Source note <input id="source-note" name="source_note" maxlength="240" placeholder="e.g. Research draft v1"></label>
+          </div>
+          <div class="form-footer"><label class="file-control"><input id="watermark-file" type="file" accept=".txt,.md"> <span>Upload .txt or .md</span></label><span class="limit">100,000 characters max</span><button class="primary-button" type="submit"><span>Seal text</span><b>→</b></button></div>
+        </form>
+        <div class="result" id="watermark-result" hidden aria-live="polite"></div>
+      </section>
+
+      <section class="panel" id="verify-panel" role="tabpanel" aria-labelledby="verify-tab" hidden>
+        <div class="panel-copy"><p class="eyebrow">Inspect record</p><h2>Verify a seal</h2><p>Paste the exact watermarked output. We’ll extract its hidden token and compare its fingerprint to the registered record.</p></div>
+        <form id="verify-form" class="tool-form">
+          <div class="text-head"><label for="verify-text">Text to verify</label><button type="button" class="quiet-button sample-button" data-target="verify-text">Use a sample</button></div>
+          <textarea id="verify-text" name="text" maxlength="100000" placeholder="Paste text with a TextSeal watermark…" required></textarea>
+          <div class="form-footer"><label class="file-control"><input id="verify-file" type="file" accept=".txt,.md"> <span>Upload .txt or .md</span></label><span class="limit">Exact text gives the strongest result</span><button class="primary-button" type="submit"><span>Verify text</span><b>→</b></button></div>
+        </form>
+        <div class="result" id="verify-result" hidden aria-live="polite"></div>
+      </section>
+
+      <section class="panel" id="history-panel" role="tabpanel" aria-labelledby="history-tab" hidden>
+        <div class="panel-copy"><p class="eyebrow">Review evidence</p><h2>Ledger activity</h2><p>Use this view during a project review to show registered records, verification events, and the integrity state of the local ledger.</p></div>
+        <div id="history-result" class="history-result" aria-live="polite">
+          <div class="history-empty"><span>◌</span><p>Open this tab to load the current local ledger.</p></div>
+        </div>
+        <button id="refresh-history" class="quiet-button refresh-history" type="button">Refresh ledger activity</button>
+      </section>
+    </section>
+
+    <section class="principles" aria-label="Verification details">
+      <article><span>01</span><h3>Invisible by design</h3><p>Zero-width characters carry the signed record identifier without changing what readers see.</p></article>
+      <article><span>02</span><h3>Hash-backed integrity</h3><p>A canonical SHA-256 hash detects any visible change to a registered text.</p></article>
+      <article><span>03</span><h3>Clear outcomes</h3><p>Authentic, modified, or unregistered—never a guess based on writing style.</p></article>
+    </section>
+  </main>
+  <footer class="shell"><span>TEXTSEAL / FINAL-YEAR BE PROJECT PROTOTYPE</span><span>Watermarking can be removed by sanitizing or paraphrasing text.</span></footer>
+  <script src="{% static 'core/app.js' %}"></script>
+</body>
+</html>
