@@ -23,13 +23,15 @@ AI-generated content is easy to copy, modify, and falsely attribute. Conventiona
 
 ## 4. Objectives
 
-1. Accept text entered directly or uploaded as a UTF-8 `.txt` or `.md` file.
+1. Accept text entered directly or uploaded as a UTF-8 `.txt`/`.md`, text-based `.pdf`, or `.docx` file.
 2. Produce a hidden, signed watermark without changing the text's visible readability.
 3. Generate a deterministic SHA-256 fingerprint from canonical text.
 4. Register text ID, timestamp, model information, source note, fingerprint, and ledger reference.
 5. Detect the watermark and compare the submitted text with its registered provenance record.
 6. Detect visible text modifications and communicate a trustworthy verification outcome.
 7. Maintain a reviewable verification trail and local tamper-evident ledger.
+8. Evaluate a registered watermark against controlled formatting and tampering transformations without persisting evaluation submissions.
+9. Provide a shareable verification receipt containing only selected provenance proof fields.
 
 ## 5. Architecture
 
@@ -55,8 +57,8 @@ flowchart LR
 
 | Module | Main file | Responsibility |
 | --- | --- | --- |
-| UI | `textseal/core/templates/core/index.html` | Text input, results, activity history |
-| API | `textseal/core/views.py` | Input validation and workflow orchestration |
+| UI | `textseal/core/templates/core/index.html` | Text and document input, results, activity history, robustness evaluation |
+| API | `textseal/core/views.py` | Input validation, document extraction, workflow orchestration, and receipt rendering |
 | Watermarking | `textseal/core/watermark.py` | Canonicalization, HMAC token generation, embedding, extraction |
 | Integrity | `textseal/core/watermark.py` | SHA-256 content fingerprint |
 | Provenance | `textseal/core/models.py` | Registered text and verification audit records |
@@ -78,7 +80,7 @@ This method makes a clean, explainable proof-of-concept. It is not robust agains
 
 | PRD ID | Evidence in TextSeal |
 | --- | --- |
-| FR-01 Text Input | Text area plus `.txt`/`.md` upload |
+| FR-01 Text Input | Text area plus `.txt`/`.md`, text-based `.pdf`, and `.docx` upload |
 | FR-02 Preprocessing | `canonicalize()` function |
 | FR-03 Watermark Generation | UUID + HMAC token generation |
 | FR-04 Watermark Embedding | Zero-width payload embedding |
@@ -90,6 +92,8 @@ This method makes a clean, explainable proof-of-concept. It is not robust agains
 | FR-10 Authenticity Check | Token, hash, record, and ledger comparison |
 | FR-11 Modification Detection | Hash mismatch produces `modified` |
 | FR-12 Verification Result | Clear result panel and audit activity history |
+| FR-13 Robustness Evaluation | `/api/evaluate` applies controlled transformations without writing verification audit rows |
+| FR-14 Shareable Receipt | `/receipt/<text_id>` shows selected proof fields and omits original text and private metadata |
 
 ## 8. Database design
 
@@ -110,6 +114,8 @@ The system does not persist the original text in the database. This reduces unne
 | `GET` | `/api/provenance/<text_id>` | Retrieve one provenance record |
 | `GET` | `/api/history` | Show recent registrations, verification events, and ledger health |
 | `GET` | `/api/health` | Confirm server and ledger availability |
+| `POST` | `/api/evaluate` | Evaluate a registered watermark against controlled transformations without recording verification events |
+| `GET` | `/receipt/<text_id>` | Open a privacy-limited, shareable provenance receipt |
 
 ## 10. Expected verification outcomes
 
@@ -157,6 +163,8 @@ Run the test suite before each review:
 - [ ] Open **Review ledger** and explain the block index, previous hash, payload hash, and block hash.
 - [ ] Explain that this is a local hash-chain proof-of-concept, not a live public blockchain transaction.
 - [ ] Run `manage.py test` and retain the passing output for evidence.
+- [ ] Run the robustness evaluation and explain its limited, deterministic scope.
+- [ ] Demonstrate a text-based PDF or DOCX upload and open the shareable receipt.
 - [ ] Capture screenshots for the report after populating a few records.
 - [ ] State watermark limitations and future work without overclaiming robustness.
 
@@ -167,3 +175,5 @@ Run the test suite before each review:
 3. Add configurable server-side LLM generation through an approved provider.
 4. Research statistical LLM watermarking for better paraphrase resilience.
 5. Move from SQLite to PostgreSQL/MySQL with encrypted backups and HTTPS deployment.
+
+The current robustness evaluation is deterministic and covers only a few controlled transformations. It does not demonstrate resilience to paraphrasing or every editor. PDF extraction handles embedded text only; scanned image OCR is outside the current scope. Receipt URLs are public and should be shared with that in mind, although they do not reveal the original text or private registration notes.

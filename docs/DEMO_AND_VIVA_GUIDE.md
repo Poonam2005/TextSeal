@@ -11,6 +11,8 @@
 7. Paste an unrelated paragraph and show **Not registered**.
 8. Open **Review ledger**. Explain the number of records, verification events, and successful ledger integrity check.
 9. Close with the limitation: the local ledger demonstrates immutable-chain concepts; a real Polygon/Ethereum transaction requires a final smart contract and credentials.
+10. Open the registered receipt link and show its selected proof fields. Run the robustness evaluation and explain why whitespace normalization passes, a punctuation edit is modified, and watermark removal becomes unregistered.
+11. Optionally demonstrate a text-based PDF or DOCX upload. Scanned PDFs are not OCR-processed.
 
 ## Strong viva answers
 
@@ -56,6 +58,10 @@ Zero-width watermarks can be removed by sanitization and may not survive paraphr
 | Token alteration | Alter/remove hidden payload | Watermark invalid or Not registered |
 | Ledger integrity failure | Alter a ledger block only in a controlled test database | Verification unavailable |
 | File input | Valid UTF-8 `.txt` file | Same outcome as pasted text |
+| DOCX input | DOCX with readable paragraphs | Extracted text follows the same seal/verify workflow |
+| PDF input | Text-based PDF | Extracted text follows the same seal/verify workflow; scanned-image OCR is unsupported |
+| Robustness evaluation | Registered sealed text | Four expected outcomes are compared without adding verification audit events |
+| Receipt | Existing text ID | Shows selected provenance fields without original text or private notes |
 
 ## Report chapter outline
 

@@ -1,0 +1,31 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>TextSeal verification receipt</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'core/app.css' %}">
+</head>
+<body>
+  <header class="topbar shell"><a class="brand" href="/" aria-label="TextSeal home"><span class="brand-mark">T</span><span>TextSeal</span></a><div class="environment"><i></i> Public verification receipt</div></header>
+  <main class="shell receipt-page">
+    <p class="eyebrow">Provenance receipt</p>
+    <h1>Registration evidence</h1>
+    <p class="receipt-intro">This receipt confirms that TextSeal has a provenance record for the identifier below. It does not prove real-world authorship or claim a public blockchain transaction.</p>
+    <section class="receipt-sheet" aria-label="Receipt details">
+      <div><span>Text ID</span><strong>{{ text_id }}</strong></div>
+      <div><span>SHA-256 fingerprint</span><strong>{{ content_hash }}</strong></div>
+      <div><span>Registered</span><strong>{{ created_at|date:"Y-m-d H:i:s T" }}</strong></div>
+      <div><span>Local ledger reference</span><strong>{{ blockchain_reference }}</strong></div>
+      <div><span>Ledger integrity</span><strong class="{% if ledger_status %}receipt-valid{% else %}receipt-invalid{% endif %}">{% if ledger_status %}Verified · block {{ block_number }}{% else %}Unavailable or inconsistent{% endif %}</strong></div>
+    </section>
+    <p class="receipt-warning">The original text and private watermark token are not included in this receipt. Verification of a submitted copy is still required to check whether its content is unchanged.</p>
+    <a class="receipt-back" href="/">Return to TextSeal</a>
+  </main>
+</body>
+</html>

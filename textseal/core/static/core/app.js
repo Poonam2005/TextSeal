@@ -27,12 +27,23 @@ function renderResult(container, data, registration = false) {
   const label = registration ? 'Text sealed & registered' : (data.label || 'Verification result');
   const textOutput = registration ? `<textarea readonly aria-label="Watermarked output">${escapeHtml(data.watermarked_text)}</textarea><div class="result-actions"><span class="limit">Invisible characters are preserved in this field.</span><button class="copy-button" type="button" data-copy>Copy sealed text</button></div>` : '';
   container.className = `result ${tone}`;
-  container.innerHTML = `<div class="result-header"><div><p class="result-kicker">${registration ? 'Registration complete' : 'Verification complete'}</p><h3>${escapeHtml(label)}</h3><p class="result-copy">${escapeHtml(data.message || data.detail || '')}</p></div><span class="status-dot">${icon}</span></div>${textOutput}${provenanceHtml(data.provenance)}`;
+  const receiptActions = registration && data.receipt_url ? `<div class="receipt-actions"><a class="copy-button" href="${escapeHtml(data.receipt_url)}" target="_blank" rel="noopener">Open verification receipt</a><button class="copy-button" type="button" data-copy-receipt="${escapeHtml(data.receipt_url)}">Copy receipt link</button><button class="quiet-button" type="button" data-evaluate>Run robustness test</button></div>` : '';
+  container.innerHTML = `<div class="result-header"><div><p class="result-kicker">${registration ? 'Registration complete' : 'Verification complete'}</p><h3>${escapeHtml(label)}</h3><p class="result-copy">${escapeHtml(data.message || data.detail || '')}</p></div><span class="status-dot">${icon}</span></div>${textOutput}${receiptActions}${provenanceHtml(data.provenance)}`;
   const button = container.querySelector('[data-copy]');
   if (button) button.addEventListener('click', async () => {
     const output = container.querySelector('textarea').value;
     await navigator.clipboard.writeText(output);
     button.textContent = 'Copied'; setTimeout(() => { button.textContent = 'Copy sealed text'; }, 1500);
+  });
+  const receiptButton = container.querySelector('[data-copy-receipt]');
+  if (receiptButton) receiptButton.addEventListener('click', async () => {
+    await navigator.clipboard.writeText(receiptButton.dataset.copyReceipt);
+    receiptButton.textContent = 'Link copied';
+  });
+  const evaluationButton = container.querySelector('[data-evaluate]');
+  if (evaluationButton) evaluationButton.addEventListener('click', () => {
+    document.getElementById('evaluation-text').value = data.watermarked_text;
+    document.getElementById('evaluation-tab').click();
   });
 }
 
@@ -46,7 +57,7 @@ async function submitForm(event, endpoint, resultId, kind) {
   const form = event.currentTarget; const result = document.getElementById(resultId); const button = form.querySelector('[type="submit"]');
   const text = form.querySelector('textarea').value;
   const file = form.querySelector('input[type="file"]')?.files[0];
-  if (!text.trim() && !file) { renderError(result, 'Enter text or upload a UTF-8 .txt or .md file.'); return; }
+  if (!text.trim() && !file) { renderError(result, 'Enter text or upload a supported document file.'); return; }
   const body = new FormData(); body.append('text', text);
   if (kind === 'watermark') { body.append('model_info', document.getElementById('model-info').value); body.append('source_note', document.getElementById('source-note').value); }
   if (file) body.append('file', file);
@@ -59,6 +70,28 @@ async function submitForm(event, endpoint, resultId, kind) {
     if (kind === 'watermark') document.getElementById('verify-text').value = data.watermarked_text;
   } catch (error) { renderError(result, error.message); }
   finally { button.disabled = false; button.querySelector('span').textContent = kind === 'watermark' ? 'Seal text' : 'Verify text'; }
+}
+
+async function evaluateRobustness(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const button = form.querySelector('[type="submit"]');
+  const result = document.getElementById('evaluation-result');
+  button.disabled = true;
+  button.querySelector('span').textContent = 'Evaluating…';
+  try {
+    const response = await fetch('/api/evaluate', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrf, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: document.getElementById('evaluation-text').value }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'The evaluation could not be completed.');
+    result.hidden = false;
+    result.className = `result ${data.passed === data.total ? 'success' : 'warning'}`;
+    result.innerHTML = `<div class="result-header"><div><p class="result-kicker">Deterministic test summary</p><h3>${data.passed} of ${data.total} cases matched expectations</h3></div><span class="status-dot">${data.passed === data.total ? '✓' : '!'}</span></div><div class="evaluation-table"><div class="evaluation-row evaluation-heading"><span>Transformation</span><span>Expected</span><span>Observed</span><span>Check</span></div>${data.cases.map(item => `<div class="evaluation-row"><span>${escapeHtml(item.name)}</span><span>${escapeHtml(item.expected.replaceAll('_', ' '))}</span><span>${escapeHtml(item.actual.replaceAll('_', ' '))}</span><strong>${item.passed ? 'Pass' : 'Mismatch'}</strong></div>`).join('')}</div>`;
+  } catch (error) { renderError(result, error.message); }
+  finally { button.disabled = false; button.querySelector('span').textContent = 'Run evaluation'; }
 }
 
 function shortId(value) { return value ? `${value.slice(0, 8)}…${value.slice(-4)}` : 'No record'; }
@@ -86,4 +119,5 @@ document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', (
 document.querySelectorAll('.sample-button').forEach(button => button.addEventListener('click', () => { document.getElementById(button.dataset.target).value = sample; }));
 document.getElementById('watermark-form').addEventListener('submit', event => submitForm(event, '/api/watermark', 'watermark-result', 'watermark'));
 document.getElementById('verify-form').addEventListener('submit', event => submitForm(event, '/api/verify', 'verify-result', 'verify'));
+document.getElementById('evaluation-form').addEventListener('submit', evaluateRobustness);
 document.getElementById('refresh-history').addEventListener('click', loadHistory);

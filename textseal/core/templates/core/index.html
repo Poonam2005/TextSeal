@@ -37,6 +37,7 @@
         <button class="tab active" role="tab" id="watermark-tab" aria-selected="true" aria-controls="watermark-panel" data-tab="watermark-panel"><span>01</span> Watermark & register</button>
         <button class="tab" role="tab" id="verify-tab" aria-selected="false" aria-controls="verify-panel" data-tab="verify-panel"><span>02</span> Verify provenance</button>
         <button class="tab" role="tab" id="history-tab" aria-selected="false" aria-controls="history-panel" data-tab="history-panel"><span>03</span> Review ledger</button>
+        <button class="tab" role="tab" id="evaluation-tab" aria-selected="false" aria-controls="evaluation-panel" data-tab="evaluation-panel"><span>04</span> Robustness test</button>
       </div>
 
       <section class="panel active" id="watermark-panel" role="tabpanel" aria-labelledby="watermark-tab">
@@ -48,7 +49,7 @@
             <label>AI model <input id="model-info" name="model_info" maxlength="160" placeholder="e.g. GPT-5, Claude, or manual"></label>
             <label>Source note <input id="source-note" name="source_note" maxlength="240" placeholder="e.g. Research draft v1"></label>
           </div>
-          <div class="form-footer"><label class="file-control"><input id="watermark-file" type="file" accept=".txt,.md"> <span>Upload .txt or .md</span></label><span class="limit">100,000 characters max</span><button class="primary-button" type="submit"><span>Seal text</span><b>→</b></button></div>
+          <div class="form-footer"><label class="file-control"><input id="watermark-file" type="file" accept=".txt,.md,.pdf,.docx"> <span>Upload .txt, .md, .pdf, or .docx</span></label><span class="limit">100,000 characters max</span><button class="primary-button" type="submit"><span>Seal text</span><b>→</b></button></div>
         </form>
         <div class="result" id="watermark-result" hidden aria-live="polite"></div>
       </section>
@@ -58,7 +59,7 @@
         <form id="verify-form" class="tool-form">
           <div class="text-head"><label for="verify-text">Text to verify</label><button type="button" class="quiet-button sample-button" data-target="verify-text">Use a sample</button></div>
           <textarea id="verify-text" name="text" maxlength="100000" placeholder="Paste text with a TextSeal watermark…" required></textarea>
-          <div class="form-footer"><label class="file-control"><input id="verify-file" type="file" accept=".txt,.md"> <span>Upload .txt or .md</span></label><span class="limit">Exact text gives the strongest result</span><button class="primary-button" type="submit"><span>Verify text</span><b>→</b></button></div>
+          <div class="form-footer"><label class="file-control"><input id="verify-file" type="file" accept=".txt,.md,.pdf,.docx"> <span>Upload .txt, .md, .pdf, or .docx</span></label><span class="limit">Exact text gives the strongest result</span><button class="primary-button" type="submit"><span>Verify text</span><b>→</b></button></div>
         </form>
         <div class="result" id="verify-result" hidden aria-live="polite"></div>
       </section>
@@ -70,6 +71,17 @@
         </div>
         <button id="refresh-history" class="quiet-button refresh-history" type="button">Refresh ledger activity</button>
       </section>
+
+      <section class="panel" id="evaluation-panel" role="tabpanel" aria-labelledby="evaluation-tab" hidden>
+        <div class="panel-copy"><p class="eyebrow">Prototype study</p><h2>Test watermark robustness</h2><p>Run controlled edits against an already registered watermarked sample. Evaluation cases are processed in memory and are not added to verification history.</p></div>
+        <form id="evaluation-form" class="tool-form">
+          <div class="text-head"><label for="evaluation-text">Registered watermarked sample</label></div>
+          <textarea id="evaluation-text" name="text" maxlength="100000" placeholder="Paste the exact sealed output from a registration…" required></textarea>
+          <div class="form-footer"><span class="limit">No paraphrase-resilience claim</span><button class="primary-button" type="submit"><span>Run evaluation</span><b>→</b></button></div>
+        </form>
+        <div class="result" id="evaluation-result" hidden aria-live="polite"></div>
+        <p class="evaluation-note">This small deterministic test demonstrates canonicalization and watermark-removal behavior only. It does not prove survival through paraphrasing, every editor, or all document conversions.</p>
+      </section>
     </section>
 
     <section class="principles" aria-label="Verification details">
@@ -78,7 +90,7 @@
       <article><span>03</span><h3>Clear outcomes</h3><p>Authentic, modified, or unregistered—never a guess based on writing style.</p></article>
     </section>
   </main>
-  <footer class="shell"><span>TEXTSEAL / FINAL-YEAR BE PROJECT PROTOTYPE</span><span>Watermarking can be removed by sanitizing or paraphrasing text.</span></footer>
+  <footer class="shell"><span>TEXTSEAL / FINAL-YEAR BE PROJECT PROTOTYPE</span><span>Watermarking can be removed by sanitizing or paraphrasing text. PDF OCR is not supported.</span></footer>
   <script src="{% static 'core/app.js' %}"></script>
 </body>
 </html>

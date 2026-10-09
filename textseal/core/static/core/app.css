@@ -1,3 +1,23 @@
+ .receipt-actions { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin-top:13px; }
+.receipt-actions .copy-button { text-decoration:none; }
+.evaluation-note { color:var(--muted); font-size:11px; line-height:1.7; margin:14px 0 0; }
+.evaluation-table { margin-top:17px; overflow-x:auto; border:1px solid rgba(77,124,106,.18); border-radius:8px; background:rgba(255,255,255,.7); }
+.evaluation-row { min-width:580px; display:grid; grid-template-columns:1.6fr 1fr 1fr .65fr; gap:12px; align-items:center; padding:11px 13px; border-bottom:1px solid #e6eeea; color:#526b6b; font-size:11px; }
+.evaluation-row:last-child { border-bottom:0; }
+.evaluation-row strong { color:var(--green); font:500 10px var(--mono); text-transform:uppercase; }
+.evaluation-heading { color:#718583; font:10px var(--mono); text-transform:uppercase; letter-spacing:0; }
+.receipt-page { max-width:840px; padding-top:66px; padding-bottom:80px; }
+.receipt-page h1 { margin:0; color:var(--ink); font:700 42px/1.1 var(--serif); letter-spacing:0; }
+.receipt-intro,.receipt-warning { max-width:680px; color:var(--muted); font-size:13px; line-height:1.75; }
+.receipt-sheet { margin:29px 0 17px; border-top:1px solid var(--line); }
+.receipt-sheet div { display:grid; grid-template-columns:minmax(150px,.7fr) 2fr; gap:18px; padding:15px 13px; border-bottom:1px solid var(--line); background:rgba(255,255,255,.72); }
+.receipt-sheet span { color:#778c8a; font:10px var(--mono); text-transform:uppercase; }
+.receipt-sheet strong { overflow-wrap:anywhere; color:#284340; font:11px/1.7 var(--mono); font-weight:500; }
+.receipt-valid { color:var(--green)!important; }
+.receipt-invalid { color:var(--red)!important; }
+.receipt-warning { padding:13px 15px; border-left:3px solid #d7aa54; background:#fff9ed; }
+.receipt-back { display:inline-block; margin-top:11px; color:var(--darkgreen); font-size:12px; font-weight:700; }
+@media (max-width:560px) { .receipt-page { padding-top:42px; }.receipt-page h1 { font-size:34px; }.receipt-sheet div { grid-template-columns:1fr; gap:6px; }.receipt-actions { align-items:flex-start; flex-direction:column; } }
 :root { --ink:#102128; --muted:#597077; --line:#dbe6e3; --paper:#f8fbf9; --white:#fff; --mint:#d9f7e9; --green:#117a58; --darkgreen:#07543d; --amber:#b56b18; --red:#b84d4f; --serif: Georgia, 'Times New Roman', serif; --sans: Manrope, Arial, sans-serif; --mono: 'DM Mono', Consolas, monospace; }
 * { box-sizing:border-box; }
 html { scroll-behavior:smooth; }
